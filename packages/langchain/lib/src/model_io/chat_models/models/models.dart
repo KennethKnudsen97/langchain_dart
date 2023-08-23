@@ -408,7 +408,7 @@ enum ChatMessageRole { system, human, ai, custom }
 
 /// {@template chat_function}
 /// The description of a function that can be called by the chat model.
-/// {@endtemplate
+/// {@endtemplate}
 @immutable
 class ChatFunction {
   /// {@macro chat_function}

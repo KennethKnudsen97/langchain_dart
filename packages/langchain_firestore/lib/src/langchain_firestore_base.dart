@@ -26,9 +26,10 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   Future<List<ChatMessage>> getChatMessages() async {
     List<FirestoreChatMessageField> conversation = [];
 
-    print("GET CHAT MESSAGES FROM FIRESTORE");
+    print("\n***GET CHAT MESSAGES FROM FIRESTORE***\n");
 
-    var snapshot = await collection.get();
+    //Get chat messages in ascending order so the newest message is the last in the list
+    var snapshot = await collection.orderBy("created", descending: false).get();
 
     List<Map<String, dynamic>> list =
         snapshot.docs.map((e) => e.data()).toList();
@@ -37,7 +38,6 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
       conversation.add(FirestoreChatMessageField.fromJson(json));
     }
 
-    conversation.sort();
     return conversation.map((e) => e.message).toList();
   }
 
@@ -52,7 +52,7 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   }
 }
 
-class FirestoreChatMessageField implements Comparable {
+class FirestoreChatMessageField {
   final ChatMessage message;
   Timestamp created = Timestamp.now();
 
@@ -96,13 +96,4 @@ class FirestoreChatMessageField implements Comparable {
 
   Map<String, dynamic> toJson() =>
       {"message": message.toJson(), "created": created};
-
-  @override
-  int compareTo(other) {
-    if (other is FirestoreChatMessageField) {
-      return created.compareTo(other.created);
-    } else {
-      return 1;
-    }
-  }
 }

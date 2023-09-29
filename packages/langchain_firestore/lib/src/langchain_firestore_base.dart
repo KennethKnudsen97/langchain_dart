@@ -19,33 +19,42 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
 
   @override
   Future<void> clear() async {
-    throw UnimplementedError();
+    var snapshot = await collection.get();
+
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    print("succesfully cleared chat memory");
   }
 
   @override
   Future<List<ChatMessage>> getChatMessages() async {
-    List<FirestoreChatMessageField> conversation = [];
-
     print("\n***GET CHAT MESSAGES FROM FIRESTORE***\n");
 
     //Get chat messages in ascending order so the newest message is the last in the list
     var snapshot = await collection.orderBy("created", descending: false).get();
 
-    List<Map<String, dynamic>> list =
-        snapshot.docs.map((e) => e.data()).toList();
-
-    for (var json in list) {
-      conversation.add(FirestoreChatMessageField.fromJson(json));
-    }
+    //Take each doc and add it to the conversation list.
+    List<FirestoreChatMessageField> conversation = snapshot.docs.map((doc) {
+      print(doc.data()["message"]["content"]);
+      return FirestoreChatMessageField.fromJson(doc.data());
+    }).toList();
 
     return conversation.map((e) => e.message).toList();
   }
 
+  /// Removes and returns the first (oldest) element of the history.
+  ///
+  /// The history must not be empty when this method is called.
   @override
   Future<ChatMessage> removeFirst() {
     throw UnimplementedError();
   }
 
+  /// Removes and returns the last (newest) element of the history.
+  ///
+  /// The history must not be empty when this method is called.
   @override
   Future<ChatMessage> removeLast() {
     throw UnimplementedError();

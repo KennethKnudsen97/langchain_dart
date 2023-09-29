@@ -203,8 +203,9 @@ HumanChatMessage{
         'example': example,
       };
 
-  factory HumanChatMessage.fromJson(final Map<String, dynamic> json) =>
-      HumanChatMessage(content: json['content'], example: json['example']);
+  factory HumanChatMessage.fromJson(final Map<String, dynamic> json) {
+    return HumanChatMessage(content: json['content'], example: json['example']);
+  }
 }
 
 /// {@template ai_chat_message}
@@ -253,16 +254,19 @@ AIChatMessage{
   Map<String, dynamic> toJson() => {
         'type': 'AIChatMessage',
         'content': content,
-        'functionCall': functionCall == null ? '' : functionCall!.toJson(),
+        'functionCall': functionCall == null ? null : functionCall!.toJson(),
         'example': example,
       };
 
-  factory AIChatMessage.fromJson(final Map<String, dynamic> json) =>
-      AIChatMessage(
-        content: json['content'],
-        functionCall: AIChatMessageFunctionCall.fromJson(json['functionCall']),
-        example: json['example'],
-      );
+  factory AIChatMessage.fromJson(final Map<String, dynamic> json) {
+    return AIChatMessage(
+      content: json['content'],
+      functionCall: json['functionCall'] != null
+          ? AIChatMessageFunctionCall.fromJson(json['functionCall'])
+          : null,
+      example: json['example'],
+    );
+  }
 }
 
 /// {@template ai_chat_message_function_call}
@@ -308,11 +312,12 @@ AIChatMessageFunctionCall{
         'arguments': arguments,
       };
 
-  factory AIChatMessageFunctionCall.fromJson(final Map<String, dynamic> json) =>
-      AIChatMessageFunctionCall(
-        name: json['content'],
-        arguments: json['arguments'],
-      );
+  factory AIChatMessageFunctionCall.fromJson(final Map<String, dynamic> json) {
+    return AIChatMessageFunctionCall(
+      name: json['name'],
+      arguments: json['arguments'],
+    );
+  }
 }
 
 /// {@template function_chat_message}

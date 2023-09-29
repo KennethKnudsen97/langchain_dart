@@ -2,26 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:langchain/langchain.dart';
 
 final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
-  FirestoreChatMessageHistory(this.collection) {
-    List<Map<String, dynamic>> list = [];
-
-    collection.get().then(
-        (snapshot) => {list = snapshot.docs.map((doc) => doc.data()).toList()});
-
-    for (var json in list) {
-      conversation.add(FirestoreChatMessageField.fromJson(json));
-    }
-    conversation.sort();
-  }
+  FirestoreChatMessageHistory(this.collection);
 
   //Firestore collection reference
   CollectionReference<Map<String, dynamic>> collection;
 
-  //UserId for firestore
-  final List<FirestoreChatMessageField> conversation = [];
-
   @override
   Future<void> addChatMessage(ChatMessage message) async {
+    print("adding message to firebase");
+
     FirestoreChatMessageField messageField =
         FirestoreChatMessageField(message: message);
 
@@ -34,8 +23,22 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   }
 
   @override
-  Future<List<ChatMessage>> getChatMessages() {
-    throw UnimplementedError();
+  Future<List<ChatMessage>> getChatMessages() async {
+    List<FirestoreChatMessageField> conversation = [];
+
+    print("GET CHAT MESSAGES FROM FIRESTORE");
+
+    var snapshot = await collection.get();
+
+    List<Map<String, dynamic>> list =
+        snapshot.docs.map((e) => e.data()).toList();
+
+    for (var json in list) {
+      conversation.add(FirestoreChatMessageField.fromJson(json));
+    }
+
+    conversation.sort();
+    return conversation.map((e) => e.message).toList();
   }
 
   @override
@@ -62,27 +65,29 @@ class FirestoreChatMessageField implements Comparable {
   }
 
   factory FirestoreChatMessageField.fromJson(Map<String, dynamic> json) {
-    switch (json['type']) {
+    switch (json['message']['type']) {
       case 'SystemChatMessage':
         return FirestoreChatMessageField(
-            message: SystemChatMessage.fromJson(json),
+            message: SystemChatMessage.fromJson(json['message']),
             created: json['created']);
       case 'HumanChatMessage':
         return FirestoreChatMessageField(
-            message: HumanChatMessage.fromJson(json), created: json['created']);
+            message: HumanChatMessage.fromJson(json['message']),
+            created: json['created']);
 
       case 'AIChatMessage':
         return FirestoreChatMessageField(
-            message: AIChatMessage.fromJson(json), created: json['created']);
+            message: AIChatMessage.fromJson(json['message']),
+            created: json['created']);
 
       case 'FunctionChatMessage':
         return FirestoreChatMessageField(
-            message: FunctionChatMessage.fromJson(json),
+            message: FunctionChatMessage.fromJson(json['message']),
             created: json['created']);
 
       case 'CustomChatMessage':
         return FirestoreChatMessageField(
-            message: CustomChatMessage.fromJson(json),
+            message: CustomChatMessage.fromJson(json['message']),
             created: json['created']);
       default:
         throw FormatException("INVALID JSON FILE = ${json['type']}");

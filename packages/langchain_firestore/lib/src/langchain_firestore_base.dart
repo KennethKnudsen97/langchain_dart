@@ -37,7 +37,6 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
 
     //Take each doc and add it to the conversation list.
     List<FirestoreChatMessageField> conversation = snapshot.docs.map((doc) {
-      print(doc.data()["message"]["content"]);
       return FirestoreChatMessageField.fromJson(doc.data());
     }).toList();
 
@@ -75,21 +74,21 @@ class FirestoreChatMessageField {
 
   factory FirestoreChatMessageField.fromJson(Map<String, dynamic> json) {
     switch (json['message']['type']) {
-      case 'SystemChatMessage':
+      case '${SystemChatMessage.defaultPrefix}ChatMessage':
         return FirestoreChatMessageField(
             message: SystemChatMessage.fromJson(json['message']),
             created: json['created']);
-      case 'HumanChatMessage':
+      case '${HumanChatMessage.defaultPrefix}ChatMessage':
         return FirestoreChatMessageField(
             message: HumanChatMessage.fromJson(json['message']),
             created: json['created']);
 
-      case 'AIChatMessage':
+      case '${AIChatMessage.defaultPrefix}ChatMessage':
         return FirestoreChatMessageField(
             message: AIChatMessage.fromJson(json['message']),
             created: json['created']);
 
-      case 'FunctionChatMessage':
+      case '${FunctionChatMessage.defaultPrefix}ChatMessage':
         return FirestoreChatMessageField(
             message: FunctionChatMessage.fromJson(json['message']),
             created: json['created']);

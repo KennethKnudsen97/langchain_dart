@@ -8,8 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  langchain:
-    path: ../langchain
+  langchain: ^0.0.13
   meta: ^1.9.1
   cloud_firestore: ^4.9.3
 

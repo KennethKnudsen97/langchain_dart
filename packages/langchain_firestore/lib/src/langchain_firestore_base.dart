@@ -77,6 +77,8 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   }
 }
 
+//This class makes sure that every chat message on firestore has a timestamp
+//This will enable fetching document with orderBy(created).
 class FirestoreChatMessageField {
   final ChatMessage message;
   Timestamp created = Timestamp.now();

@@ -151,7 +151,7 @@ SystemChatMessage{
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'SystemChatMessage',
+        'type': defaultPrefix,
         'content': content,
       };
 
@@ -196,7 +196,7 @@ HumanChatMessage{
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'HumanChatMessage',
+        'type': defaultPrefix,
         'content': content,
         'example': example,
       };
@@ -250,7 +250,7 @@ AIChatMessage{
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'AIChatMessage',
+        'type': defaultPrefix,
         'content': content,
         'functionCall': functionCall == null ? null : functionCall!.toJson(),
         'example': example,
@@ -313,7 +313,6 @@ AIChatMessageFunctionCall{
   }
 
   Map<String, dynamic> toJson() => {
-        'type': 'AIChatMessageFunctionCall',
         'name': name,
         'arguments': arguments,
       };
@@ -361,7 +360,7 @@ FunctionChatMessage{
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'FunctionChatMessage',
+        'type': defaultPrefix,
         'name': name,
         'content': content,
       };
@@ -403,7 +402,7 @@ CustomChatMessage{
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'CustomChatMessage',
+        'type': 'Custom',
         'content': content,
         'role': role,
       };

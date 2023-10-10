@@ -8,10 +8,8 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   CollectionReference<Map<String, dynamic>> collection;
 
   @override
-  Future<void> addChatMessage(ChatMessage message) async {
-    print("adding message to firebase");
-
-    FirestoreChatMessageField messageField =
+  Future<void> addChatMessage(final ChatMessage message) async {
+    final FirestoreChatMessageField messageField =
         FirestoreChatMessageField(message: message);
 
     await collection.doc().set(messageField.toJson());
@@ -19,10 +17,10 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
 
   @override
   Future<void> clear() async {
-    var snapshot = await collection.get();
+    final snapshot = await collection.get();
 
     //Delete all docs in firestore
-    for (var doc in snapshot.docs) {
+    for (final doc in snapshot.docs) {
       await doc.reference.delete();
     }
   }
@@ -30,14 +28,15 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   @override
   Future<List<ChatMessage>> getChatMessages() async {
     //Get chat messages in ascending order so the newest message is the last in the list
-    var snapshot = await collection.orderBy("created", descending: false).get();
+    final snapshot =
+        await collection.orderBy('created', descending: false).get();
 
     //Take each doc and add it to the conversation list.
-    List<FirestoreChatMessageField> conversation = snapshot.docs.map((doc) {
-      return FirestoreChatMessageField.fromJson(doc.data());
+    final List<ChatMessage> conversation = snapshot.docs.map((final doc) {
+      return FirestoreChatMessageField.fromJson(doc.data()).message;
     }).toList();
 
-    return conversation.map((e) => e.message).toList();
+    return conversation;
   }
 
   /// Removes and returns the first (oldest) element of the history.
@@ -45,14 +44,14 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   /// The history must not be empty when this method is called.
   @override
   Future<ChatMessage> removeFirst() async {
-    var snapshot =
-        await collection.orderBy("created", descending: false).limit(1).get();
+    final snapshot =
+        await collection.orderBy('created', descending: false).limit(1).get();
 
     //get oldest document
-    var oldest = snapshot.docs.first;
+    final oldest = snapshot.docs.first;
 
     //Delete doc in firestore
-    oldest.reference.delete();
+    await oldest.reference.delete();
 
     //Create FirestoreChatMessageField and return ChatMessage
     return FirestoreChatMessageField.fromJson(oldest.data()).message;
@@ -63,14 +62,14 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   /// The history must not be empty when this method is called.
   @override
   Future<ChatMessage> removeLast() async {
-    var snapshot =
-        await collection.orderBy("created", descending: true).limit(1).get();
+    final snapshot =
+        await collection.orderBy('created', descending: true).limit(1).get();
 
     //get newest document
-    var newest = snapshot.docs.first;
+    final newest = snapshot.docs.first;
 
     //Delete doc in firestore
-    newest.reference.delete();
+    await newest.reference.delete();
 
     //Create FirestoreChatMessageField and return ChatMessage
     return FirestoreChatMessageField.fromJson(newest.data()).message;
@@ -83,7 +82,7 @@ class FirestoreChatMessageField {
   final ChatMessage message;
   Timestamp created = Timestamp.now();
 
-  FirestoreChatMessageField({required this.message, Timestamp? created}) {
+  FirestoreChatMessageField({required this.message, final Timestamp? created}) {
     if (created == null) {
       this.created = Timestamp.now();
     } else {
@@ -91,36 +90,43 @@ class FirestoreChatMessageField {
     }
   }
 
-  factory FirestoreChatMessageField.fromJson(Map<String, dynamic> json) {
+  factory FirestoreChatMessageField.fromJson(final Map<String, dynamic> json) {
+    // ignore: avoid_dynamic_calls
     switch (json['message']['type']) {
-      case '${SystemChatMessage.defaultPrefix}ChatMessage':
+      case SystemChatMessage.defaultPrefix:
         return FirestoreChatMessageField(
-            message: SystemChatMessage.fromJson(json['message']),
-            created: json['created']);
-      case '${HumanChatMessage.defaultPrefix}ChatMessage':
+          message: SystemChatMessage.fromJson(json['message']),
+          created: json['created'],
+        );
+      case HumanChatMessage.defaultPrefix:
         return FirestoreChatMessageField(
-            message: HumanChatMessage.fromJson(json['message']),
-            created: json['created']);
+          message: HumanChatMessage.fromJson(json['message']),
+          created: json['created'],
+        );
 
-      case '${AIChatMessage.defaultPrefix}ChatMessage':
+      case AIChatMessage.defaultPrefix:
         return FirestoreChatMessageField(
-            message: AIChatMessage.fromJson(json['message']),
-            created: json['created']);
+          message: AIChatMessage.fromJson(json['message']),
+          created: json['created'],
+        );
 
-      case '${FunctionChatMessage.defaultPrefix}ChatMessage':
+      case FunctionChatMessage.defaultPrefix:
         return FirestoreChatMessageField(
-            message: FunctionChatMessage.fromJson(json['message']),
-            created: json['created']);
+          message: FunctionChatMessage.fromJson(json['message']),
+          created: json['created'],
+        );
 
-      case 'CustomChatMessage':
+      case 'Custom':
         return FirestoreChatMessageField(
-            message: CustomChatMessage.fromJson(json['message']),
-            created: json['created']);
+          message: CustomChatMessage.fromJson(json['message']),
+          created: json['created'],
+        );
       default:
-        throw FormatException("INVALID JSON FILE = ${json['type']}");
+        // ignore: avoid_dynamic_calls
+        throw FormatException("INVALID JSON FILE = ${json['message']['type']}");
     }
   }
 
   Map<String, dynamic> toJson() =>
-      {"message": message.toJson(), "created": created};
+      {'message': message.toJson(), 'created': created};
 }

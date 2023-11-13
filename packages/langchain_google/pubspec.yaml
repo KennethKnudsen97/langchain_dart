@@ -22,12 +22,14 @@ dependencies:
   googleapis: ^11.4.0
   googleapis_auth: ^1.4.1
   http: ^1.1.0
-  langchain: ^0.0.13
+  langchain:
+    path: ../langchain
   meta: ^1.9.1
   tiktoken: ^1.0.3
   uuid: ^4.0.0
   vertex_ai: ^0.0.7+1
   cloud_firestore: ^4.9.3
+  fake_cloud_firestore: ^2.4.1+1
 
 dev_dependencies:
   test: ^1.21.0

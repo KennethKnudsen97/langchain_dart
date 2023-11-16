@@ -538,7 +538,19 @@ CustomChatMessage{
 }
 
 /// Role of a chat message
-enum ChatMessageRole { system, human, ai, custom }
+enum ChatMessageRole {
+  /// A system message.
+  system,
+
+  /// A human (user) message.
+  human,
+
+  /// An AI message.
+  ai,
+
+  /// A message with a custom role.
+  custom,
+}
 
 /// {@template chat_message_content}
 /// The content of a message.
@@ -663,7 +675,16 @@ ChatMessageContentMultiModal{
 }
 
 /// Specifies the detail level of the image.
-enum ChatMessageContentImageDetail { auto, low, high }
+enum ChatMessageContentImageDetail {
+  /// Automatically select the detail level.
+  auto,
+
+  /// Low detail level (faster response time and lower token usage).
+  low,
+
+  /// Medium detail level (slower response time and higher token usage).
+  high,
+}
 
 /// {@template chat_function}
 /// The description of a function that can be called by the chat model.
@@ -750,6 +771,7 @@ final class ChatFunctionCallAuto extends ChatFunctionCall {
 /// The model is forced to to call the specified function.
 /// {@endtemplate}
 final class ChatFunctionCallForced extends ChatFunctionCall {
+  /// {@macro chat_function_call_forced}
   const ChatFunctionCallForced({
     required this.functionName,
   });

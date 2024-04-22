@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:langchain/langchain.dart';
+import 'package:langchain_core/chat_history.dart';
+import 'package:langchain_core/chat_models.dart';
 
 final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   FirestoreChatMessageHistory(this.collection);
@@ -76,8 +77,8 @@ final class FirestoreChatMessageHistory extends BaseChatMessageHistory {
   }
 }
 
-//This class makes sure that every chat message on firestore has a timestamp
-//This will enable fetching document with orderBy(created).
+///This class makes sure that every chat message on firestore has a timestamp
+///This will enable fetching document with orderBy(created).
 class FirestoreChatMessageField {
   final ChatMessage message;
   Timestamp created = Timestamp.now();

@@ -135,6 +135,9 @@ sealed class ChatMessage {
 
   /// Merges this message with another by concatenating the content.
   ChatMessage concat(final ChatMessage other);
+
+  ///Converts ChatMessage to json string
+  Map<String, dynamic> toJson();
 }
 
 /// {@template system_chat_message}
@@ -281,11 +284,12 @@ HumanChatMessage{
   Map<String, dynamic> toJson() => {
         'type': defaultPrefix,
         'content': content,
-        'example': example,
       };
 
   factory HumanChatMessage.fromJson(final Map<String, dynamic> json) {
-    return HumanChatMessage(content: json['content'], example: json['example']);
+    return HumanChatMessage(
+      content: json['content'],
+    );
   }
 }
 
@@ -354,7 +358,6 @@ AIChatMessage{
         'type': defaultPrefix,
         'content': content,
         'functionCall': functionCall == null ? null : functionCall!.toJson(),
-        'example': example,
       };
 
   factory AIChatMessage.fromJson(final Map<String, dynamic> json) {
@@ -363,7 +366,6 @@ AIChatMessage{
       functionCall: json['functionCall'] != null
           ? AIChatMessageFunctionCall.fromJson(json['functionCall'])
           : null,
-      example: json['example'],
     );
   }
 }
@@ -421,14 +423,18 @@ AIChatMessageFunctionCall{
 }''';
   }
 
+  ///The toJson function will convert the ChatMessage to a json object
   Map<String, dynamic> toJson() => {
         'name': name,
+        'argumentsRaw': argumentsRaw,
         'arguments': arguments,
       };
 
+  ///The fromJson will create a AI
   factory AIChatMessageFunctionCall.fromJson(final Map<String, dynamic> json) {
     return AIChatMessageFunctionCall(
       name: json['name'],
+      argumentsRaw: json['argumentsRaw'],
       arguments: json['arguments'],
     );
   }

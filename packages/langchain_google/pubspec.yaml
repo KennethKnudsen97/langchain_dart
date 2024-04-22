@@ -27,6 +27,7 @@ dependencies:
   meta: ^1.11.0
   uuid: ^4.3.3
   vertex_ai: ^0.1.0
+  cloud_firestore: any
 
 dev_dependencies:
   test: ^1.25.2

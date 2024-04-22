@@ -1,19 +1,18 @@
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:langchain_google/langchain_google.dart';
+// import 'package:langchain_google/langchain_google.dart';
 
 Future<void> main() async {
-  final db = FakeFirebaseFirestore();
+  // final db = FakeFirebaseFirestore();
 
-  await db.collection('Users').doc('a').collection('Langchain').add({
-    'username': 'Bob',
-  });
+  // await db.collection('Users').doc('a').collection('Langchain').add({
+  //   'username': 'Bob',
+  // });
 
-  final FirestoreChatMessageHistory history = FirestoreChatMessageHistory(
-    db.collection('Users').doc('a').collection('Langchain'),
-  );
+  // final FirestoreChatMessageHistory history = FirestoreChatMessageHistory(
+  //   db.collection('Users').doc('a').collection('Langchain'),
+  // );
 
-  await history.addHumanChatMessage('hi!');
-  await history.addAIChatMessage('whats up?');
+  // await history.addHumanChatMessage('hi!');
+  // await history.addAIChatMessage('whats up?');
 
-  print(await history.getChatMessages());
+  // print(await history.getChatMessages());
 }

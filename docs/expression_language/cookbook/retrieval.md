@@ -30,7 +30,7 @@ Answer the question based only on the following context:
 Question: {question}''');
 
 final chain = Runnable.fromMap<String>({
-  'context': retriever | Runnable.fromFunction((docs, _) => docs.join('\n')),
+  'context': retriever | Runnable.mapInput((docs) => docs.join('\n')),
   'question': Runnable.passthrough(),
 }) | promptTemplate | model | StringOutputParser();
 
@@ -42,7 +42,7 @@ await chain.stream('How can I get free shipping?').forEach(stdout.write);
 // To get free shipping, you need to place an order over 30€.
 ```
 
-Imagine that we now want to answer the question in a different language. We will need to pass two parameters when invoking the chain. We can use 
+Imagine that we now want to answer the question in a different language. We will need to pass two parameters when invoking the chain. We can use
 
 ```dart
 final promptTemplate = ChatPromptTemplate.fromTemplate('''
@@ -55,7 +55,7 @@ Answer in the following language: {language}''');
 
 final chain = Runnable.fromMap({
       'context': Runnable.getItemFromMap<String>('question') |
-          (retriever | Runnable.fromFunction((docs, _) => docs.join('\n'))),
+          (retriever | Runnable.mapInput((docs) => docs.join('\n'))),
       'question': Runnable.getItemFromMap('question'),
       'language': Runnable.getItemFromMap('language'),
     }) |
@@ -77,11 +77,11 @@ await chain.stream({
 // Om gratis verzending te krijgen, moet je bestellingen plaatsen van meer dan 30€.
 ```
 
-*Note: you may have noticed that we added parentheses around the retriever. This is to workaround the type inference limitations of Dart when using the `|` operator. You won't need them if you use `.pipe` instead.*
+_Note: you may have noticed that we added parentheses around the retriever. This is to workaround the type inference limitations of Dart when using the `|` operator. You won't need them if you use `.pipe` instead._
 
 ## Conversational Retrieval Chain
 
-Because we can create `Runnable`s from functions we can add in conversation history via a formatting function. This allows us to recreate the popular   `ConversationalRetrievalQAChain` to "chat with data":
+Because we can create `Runnable`s from functions we can add in conversation history via a formatting function. This allows us to recreate the popular `ConversationalRetrievalQAChain` to "chat with data":
 
 ```dart
 final retriever = vectorStore.asRetriever();
@@ -119,9 +119,9 @@ String formatChatHistory(final List<(String, String)> chatHistory) {
 final inputs = Runnable.fromMap({
   'standalone_question': Runnable.fromMap({
         'question': Runnable.getItemFromMap('question'),
-        'chat_history': 
+        'chat_history':
             Runnable.getItemFromMap<List<(String, String)>>('chat_history') |
-            Runnable.fromFunction((history, _) => formatChatHistory(history)),
+                Runnable.mapInput(formatChatHistory),
       }) |
       condenseQuestionPrompt |
       model |
@@ -131,9 +131,7 @@ final inputs = Runnable.fromMap({
 final context = Runnable.fromMap({
   'context': Runnable.getItemFromMap<String>('standalone_question') |
       retriever |
-      Runnable.fromFunction<List<Document>, String>(
-        (docs, _) => combineDocuments(docs),
-      ),
+      Runnable.mapInput<List<Document>, String>(combineDocuments),
   'question': Runnable.getItemFromMap('standalone_question'),
 });
 
@@ -209,26 +207,25 @@ String formatChatHistory(final List<ChatMessage> chatHistory) {
 // First, we load the memory
 final loadedMemory = Runnable.fromMap({
   'question': Runnable.getItemFromMap('question'),
-  'memory': Runnable.fromFunction((_, __) => memory.loadMemoryVariables()),
+  'memory': Runnable.mapInput((_) => memory.loadMemoryVariables()),
 });
 
 // Next, we get the chat history from the memory
 final expandedMemory = Runnable.fromMap({
   'question': Runnable.getItemFromMap('question'),
   'chat_history': Runnable.getItemFromMap('memory') |
-      Runnable.fromFunction<MemoryVariables, List<ChatMessage>>(
-        (input, _) => input['history'],
+      Runnable.mapInput<MemoryVariables, List<ChatMessage>>(
+        (final input) => input['history'],
       ),
 });
 
-// Now, we generate a standalone question that includes the 
+// Now, we generate a standalone question that includes the
 // necessary details from the chat history
 final standaloneQuestion = Runnable.fromMap({
   'standalone_question': Runnable.fromMap({
         'question': Runnable.getItemFromMap('question'),
-        'chat_history': Runnable.getItemFromMap<List<ChatMessage>>(
-                'chat_history') |
-            Runnable.fromFunction((history, _) => formatChatHistory(history)),
+        'chat_history': Runnable.getItemFromMap<List<ChatMessage>>('chat_history') |
+            Runnable.mapInput(formatChatHistory),
       }) |
       condenseQuestionPrompt |
       model |
@@ -244,9 +241,7 @@ final retrievedDocs = Runnable.fromMap({
 // Construct the inputs for the answer prompt
 final finalInputs = Runnable.fromMap({
   'context': Runnable.getItemFromMap('docs') |
-      Runnable.fromFunction<List<Document>, String>(
-        (docs, _) => combineDocuments(docs),
-      ),
+      Runnable.mapInput<List<Document>, String>(combineDocuments),
   'question': Runnable.getItemFromMap('question'),
 });
 
@@ -263,7 +258,7 @@ final conversationalQaChain = loadedMemory |
     retrievedDocs |
     answer;
 
-// If we add some messages to the memory, 
+// If we add some messages to the memory,
 // they will be used in the next invocation
 await memory.saveContext(
   inputValues: {

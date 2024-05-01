@@ -16,7 +16,8 @@ Follow [these instructions](https://github.com/jmorganca/ollama) to set up and r
 
 1. Download and install [Ollama](https://ollama.ai)
 2. Fetch a model via `ollama pull <model family>`
-  * e.g., for `Llama-7b`: `ollama pull llama2`
+
+- e.g., for `Llama-7b`: `ollama pull llama2`
 
 ## Usage
 
@@ -162,8 +163,8 @@ final retriever = vectorStore.asRetriever(
 );
 
 // 4. Create a Runnable that combines the retrieved documents into a single string
-final docCombiner = Runnable.fromFunction<List<Document>, String>((docs, _) {
-  return docs.map((d) => d.pageContent).join('\n');
+final docCombiner = Runnable.mapInput<List<Document>, String>((docs) {
+  return docs.map((final d) => d.pageContent).join('\n');
 });
 
 // 4. Define the RAG pipeline
